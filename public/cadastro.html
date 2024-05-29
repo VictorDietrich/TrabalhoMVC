@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro de Alunos</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h1>Cadastro de Alunos</h1>
+    <form id="cadastroForm">
+        <label for="name">Nome:</label>
+        <input type="text" id="name" name="name" required>
+        <br>
+        <label for="age">Idade:</label>
+        <input type="number" id="age" name="age" required>
+        <br>
+        <button type="submit">Cadastrar</button>
+    </form>
+
+    <h2>Alunos Cadastrados</h2>
+    <table id="studentsTable" border="1">
+        <thead>
+            <tr>
+                <th>Nome</th>
+                <th>Idade</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+
+    <script>
+        async function fetchStudents() {
+            const response = await fetch('/users/getAllUsers');
+            if (response.ok) {
+                const students = await response.json();
+                const tableBody = document.getElementById('studentsTable').querySelector('tbody');
+                tableBody.innerHTML = '';
+                students.forEach(student => {
+                    const row = document.createElement('tr');
+                    const nameCell = document.createElement('td');
+                    nameCell.textContent = student.name;
+                    const ageCell = document.createElement('td');
+                    ageCell.textContent = student.age;
+                    row.appendChild(nameCell);
+                    row.appendChild(ageCell);
+                    tableBody.appendChild(row);
+                });
+            }
+        }
+
+        document.getElementById('cadastroForm').addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const name = document.getElementById('name').value;
+            const age = document.getElementById('age').value;
+
+            const response = await fetch('/users/addUser', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ name, age }),
+            });
+
+            if (response.ok) {
+                alert('Aluno cadastrado com sucesso!');
+                fetchStudents();
+            } else {
+                alert('Falha no cadastro');
+            }
+        });
+
+        // Fetch students on page load
+        fetchStudents();
+    </script>
+</body>
+</html>
